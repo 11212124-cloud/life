@@ -1,0 +1,6 @@
+{
+  "name": "生活開支記帳本",
+  "description": "生活開支記帳網頁版，支援 Google Sheets 試算表連動紀錄、Excel 匯出及每月消費分析圖表報告。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
