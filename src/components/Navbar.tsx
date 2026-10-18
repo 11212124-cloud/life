@@ -41,12 +41,15 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center shadow-md shadow-emerald-500/20">
-                <Wallet className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-amber-400 text-white flex items-center justify-center shadow-md shadow-emerald-500/20 text-lg select-none">
+                🐷
               </div>
               <div>
-                <h1 className="text-base sm:text-lg font-black tracking-tight text-gray-900 leading-tight">
-                  生活開支記帳本
+                <h1 className="text-base sm:text-lg font-black tracking-tight text-gray-900 leading-tight flex items-center gap-1.5">
+                  <span>生活開支記帳本</span>
+                  <span className="text-xs px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-800 font-bold border border-amber-200 hidden sm:inline">
+                    嘟嘟金庫 ✨
+                  </span>
                 </h1>
                 <p className="text-[10px] text-gray-400 font-medium hidden sm:block">
                   Google Sheets 雲端連動 • Excel 匯出 • 消費圖表報告

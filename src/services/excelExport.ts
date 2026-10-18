@@ -1,6 +1,6 @@
 import * as XLSX from 'xlsx';
 import { ExpenseRecord, PaymentMethod } from '../types/expense';
-import { PAYMENT_METHODS } from '../constants/categories';
+import { PAYMENT_METHODS, EXPENSE_MOODS } from '../constants/categories';
 
 const getPaymentName = (method: PaymentMethod): string => {
   const found = PAYMENT_METHODS.find((p) => p.id === method);
@@ -19,17 +19,21 @@ export const exportExpensesToExcel = (
   const sortedRecords = [...records].sort((a, b) => b.date.localeCompare(a.date));
 
   // --- Sheet 1: 收支明細表 ---
-  const detailRows = sortedRecords.map((r) => ({
-    '紀錄編號': r.id,
-    '日期': r.date,
-    '收支類型': r.type === 'expense' ? '支出' : '收入',
-    '消費類別': r.category,
-    '項目描述': r.title,
-    '金額 (NT$)': r.amount,
-    '支付方式': getPaymentName(r.paymentMethod),
-    '備註說明': r.note || '',
-    '建立時間': new Date(r.createdAt).toLocaleString('zh-TW', { hour12: false }),
-  }));
+  const detailRows = sortedRecords.map((r) => {
+    const moodInfo = EXPENSE_MOODS.find((m) => m.id === r.mood);
+    return {
+      '紀錄編號': r.id,
+      '日期': r.date,
+      '收支類型': r.type === 'expense' ? '支出' : '收入',
+      '消費類別': r.category,
+      '項目描述': r.title,
+      '金額 (NT$)': r.amount,
+      '支付方式': getPaymentName(r.paymentMethod),
+      '消費心情': moodInfo ? `${moodInfo.emoji} ${moodInfo.label}` : '-',
+      '備註說明': r.note || '',
+      '建立時間': new Date(r.createdAt).toLocaleString('zh-TW', { hour12: false }),
+    };
+  });
 
   const detailWs = XLSX.utils.json_to_sheet(detailRows);
   // Set column widths
@@ -41,6 +45,7 @@ export const exportExpensesToExcel = (
     { wch: 22 }, // 項目
     { wch: 12 }, // 金額
     { wch: 16 }, // 支付方式
+    { wch: 14 }, // 心情
     { wch: 25 }, // 備註
     { wch: 20 }, // 建立時間
   ];

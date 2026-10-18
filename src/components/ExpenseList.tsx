@@ -14,9 +14,10 @@ import {
   CheckSquare,
   Square,
   Download,
+  Sparkles,
 } from 'lucide-react';
 import { ExpenseRecord, TransactionType } from '../types/expense';
-import { ALL_CATEGORIES, PAYMENT_METHODS } from '../constants/categories';
+import { ALL_CATEGORIES, PAYMENT_METHODS, EXPENSE_MOODS } from '../constants/categories';
 import { CategoryIcon } from './CategoryIcon';
 import { ConfirmationModal } from './ConfirmationModal';
 import { exportExpensesToExcel } from '../services/excelExport';
@@ -335,31 +336,41 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
 
       {/* Record Items List */}
       {filteredRecords.length === 0 ? (
-        <div className="bg-white rounded-2xl p-10 border border-gray-100 shadow-xs text-center flex flex-col items-center justify-center space-y-3">
-          <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center text-gray-400">
-            <Filter className="w-6 h-6" />
+        <div className="bg-gradient-to-b from-white to-amber-50/30 rounded-3xl p-10 sm:p-12 border border-gray-100 shadow-xs text-center flex flex-col items-center justify-center space-y-4">
+          <div className="w-16 h-16 rounded-3xl bg-amber-100/80 border border-amber-200/60 flex items-center justify-center text-3xl shadow-xs animate-bounce">
+            🐷
           </div>
-          <h4 className="font-bold text-gray-700 text-sm">查無符合條件的記帳紀錄</h4>
-          <p className="text-xs text-gray-400 max-w-sm">請嘗試更換篩選條件，或是點擊上方「記一筆」新增您的第一筆日常開支。</p>
+          <div className="space-y-1">
+            <h4 className="font-black text-gray-800 text-base sm:text-lg">
+              {records.length === 0 ? '目前沒有開支紀錄，金庫滿滿！' : '查無符合條件的收支紀錄'}
+            </h4>
+            <p className="text-xs sm:text-sm text-gray-500 max-w-sm">
+              {records.length === 0
+                ? '點擊下方按鈕記錄今天的早餐、咖啡或通勤，開始打造專屬你的消費生活軌跡！'
+                : '請嘗試更換搜尋關鍵字或分類篩選條件。'}
+            </p>
+          </div>
           <button
             onClick={onAddClick}
-            className="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold hover:bg-emerald-700 transition-colors cursor-pointer"
+            className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-2xl text-xs sm:text-sm font-black hover:from-emerald-700 hover:to-teal-700 transition-all cursor-pointer shadow-md shadow-emerald-600/20 active:scale-95 flex items-center gap-2"
           >
-            立即記一筆
+            <Sparkles className="w-4 h-4" />
+            <span>立即記下第一筆開支 🚀</span>
           </button>
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           {filteredRecords.map((record) => {
             const catInfo = ALL_CATEGORIES.find((c) => c.name === record.category);
             const paymentInfo = PAYMENT_METHODS.find((p) => p.id === record.paymentMethod);
+            const moodInfo = EXPENSE_MOODS.find((m) => m.id === record.mood);
             const isSelected = selectedIds.has(record.id);
 
             return (
               <div
                 key={record.id}
-                className={`bg-white rounded-2xl p-3.5 sm:p-4 border transition-all flex items-center gap-3 group hover:border-emerald-300 hover:shadow-xs ${
-                  isSelected ? 'border-emerald-500 bg-emerald-50/20' : 'border-gray-100'
+                className={`bg-white rounded-2xl p-3.5 sm:p-4 border transition-all flex items-center gap-3 group hover:border-emerald-300 hover:shadow-xs hover:scale-[1.005] ${
+                  isSelected ? 'border-emerald-500 bg-emerald-50/30' : 'border-gray-100'
                 }`}
               >
                 {/* Select Checkbox */}
@@ -375,40 +386,45 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
                   )}
                 </button>
 
-                {/* Category Icon Badge */}
+                {/* Category Emoji / Icon Badge */}
                 <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105"
+                  className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 shadow-2xs text-xl"
                   style={{
                     backgroundColor: catInfo?.bgColor || '#f1f5f9',
-                    color: catInfo?.color || '#64748b',
                   }}
+                  title={record.category}
                 >
-                  <CategoryIcon name={catInfo?.icon || 'MoreHorizontal'} className="w-5 h-5" />
+                  <span>{catInfo?.emoji || '📝'}</span>
                 </div>
 
                 {/* Details */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-gray-900 truncate">
+                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                    <span className="text-sm font-black text-gray-900 truncate">
                       {record.title}
                     </span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-md font-semibold bg-gray-100 text-gray-600 shrink-0">
+                    <span className="text-[10px] px-2 py-0.5 rounded-md font-bold bg-gray-100 text-gray-700 shrink-0">
                       {record.category}
                     </span>
+                    {moodInfo && (
+                      <span className={`text-[10px] px-2 py-0.5 rounded-md font-bold border shrink-0 ${moodInfo.badgeClass}`}>
+                        {moodInfo.emoji} {moodInfo.label}
+                      </span>
+                    )}
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-[11px] text-gray-400 font-medium">
-                    <span className="flex items-center gap-1 text-gray-500">
-                      <Calendar className="w-3 h-3" />
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-[11px] text-gray-500 font-medium">
+                    <span className="flex items-center gap-1">
+                      <Calendar className="w-3 h-3 text-gray-400" />
                       {record.date}
                     </span>
-                    <span className="flex items-center gap-1 text-gray-500">
-                      <CreditCard className="w-3 h-3" />
+                    <span className="flex items-center gap-1">
+                      <CreditCard className="w-3 h-3 text-gray-400" />
                       {paymentInfo?.name.split(' ')[0] || record.paymentMethod}
                     </span>
                     {record.note && (
-                      <span className="text-gray-400 truncate max-w-[150px] sm:max-w-xs">
-                        {record.note}
+                      <span className="text-gray-400 truncate max-w-[150px] sm:max-w-xs italic">
+                        "{record.note}"
                       </span>
                     )}
                   </div>
@@ -417,7 +433,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
                 {/* Amount */}
                 <div className="text-right shrink-0">
                   <div
-                    className={`text-sm sm:text-base font-black ${
+                    className={`text-sm sm:text-base font-black tracking-tight ${
                       record.type === 'expense' ? 'text-rose-600' : 'text-emerald-600'
                     }`}
                   >

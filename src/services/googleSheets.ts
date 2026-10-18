@@ -1,5 +1,5 @@
 import { ExpenseRecord, PaymentMethod } from '../types/expense';
-import { PAYMENT_METHODS } from '../constants/categories';
+import { PAYMENT_METHODS, EXPENSE_MOODS } from '../constants/categories';
 
 export const SHEET_HEADERS = [
   '紀錄編號 (ID)',
@@ -21,6 +21,14 @@ const getPaymentName = (method: PaymentMethod): string => {
 const getPaymentId = (name: string): PaymentMethod => {
   const found = PAYMENT_METHODS.find((p) => p.name === name || p.id === name);
   return found ? found.id : 'cash';
+};
+
+const getNoteWithMood = (note?: string, mood?: string): string => {
+  const foundMood = EXPENSE_MOODS.find((m) => m.id === mood);
+  if (foundMood) {
+    return note ? `[${foundMood.emoji} ${foundMood.label}] ${note}` : `[${foundMood.emoji} ${foundMood.label}]`;
+  }
+  return note || '';
 };
 
 /**
@@ -137,7 +145,7 @@ export const appendExpensesToSheet = async (
     r.title,
     r.amount,
     getPaymentName(r.paymentMethod),
-    r.note || '',
+    getNoteWithMood(r.note, r.mood),
     r.createdAt,
   ]);
 
@@ -197,7 +205,7 @@ export const syncFullExpensesToSheet = async (
       r.title,
       r.amount,
       getPaymentName(r.paymentMethod),
-      r.note || '',
+      getNoteWithMood(r.note, r.mood),
       r.createdAt,
     ]),
   ];

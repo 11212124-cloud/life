@@ -11,6 +11,7 @@ export interface ExpenseRecord {
   amount: number;
   paymentMethod: PaymentMethod;
   note?: string;
+  mood?: string; // e.g. 'happy', 'worth_it', 'painful', etc.
   syncedToSheets?: boolean;
   createdAt: string; // ISO string
 }
@@ -20,6 +21,7 @@ export interface CategoryInfo {
   name: string;
   type: TransactionType;
   icon: string;
+  emoji: string;
   color: string;
   bgColor: string;
 }

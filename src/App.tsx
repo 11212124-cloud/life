@@ -29,6 +29,7 @@ import { MonthlyReport } from './components/MonthlyReport';
 import { GoogleSheetsTab } from './components/GoogleSheetsTab';
 import { ExpenseFormModal } from './components/ExpenseFormModal';
 import { GoogleSheetsSyncModal } from './components/GoogleSheetsSyncModal';
+import { MascotBanner } from './components/MascotBanner';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
 
 export default function App() {
@@ -215,7 +216,15 @@ export default function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-8 pb-24 md:pb-12">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-8 pb-24 md:pb-12 space-y-5 sm:space-y-6">
+        {/* Lively Mascot & Financial Dialogue Banner */}
+        <MascotBanner
+          records={records}
+          monthlyBudget={
+            budgets[`${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`] ?? 30000
+          }
+        />
+
         {activeTab === 'list' && (
           <ExpenseList
             records={records}

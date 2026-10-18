@@ -19,6 +19,7 @@ import { ExpenseRecord, MonthlyBudget } from '../types/expense';
 import { ALL_CATEGORIES, PAYMENT_METHODS } from '../constants/categories';
 import { CategoryIcon } from './CategoryIcon';
 import { exportExpensesToExcel } from '../services/excelExport';
+import confetti from 'canvas-confetti';
 
 interface MonthlyReportProps {
   records: ExpenseRecord[];
@@ -130,6 +131,7 @@ export const MonthlyReport: React.FC<MonthlyReportProps> = ({
           percentage: totalExpense > 0 ? (data.total / totalExpense) * 100 : 0,
           color: catInfo?.color || '#64748b',
           icon: catInfo?.icon || 'MoreHorizontal',
+          emoji: catInfo?.emoji || '📝',
           bgColor: catInfo?.bgColor || '#f1f5f9',
         };
       })
@@ -249,6 +251,12 @@ export const MonthlyReport: React.FC<MonthlyReportProps> = ({
   };
 
   const handleExportMonthExcel = () => {
+    confetti({
+      particleCount: 35,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#10b981', '#3b82f6', '#f59e0b', '#ec4899'],
+    });
     exportExpensesToExcel(monthRecords, `生活開支報表_${selectedMonth}`);
   };
 
@@ -259,6 +267,67 @@ export const MonthlyReport: React.FC<MonthlyReportProps> = ({
   const activeDonutCategory = hoveredCategory
     ? stats.categoryList.find((c) => c.name === hoveredCategory)
     : stats.categoryList[0];
+
+  // Monthly Spending Persona
+  const persona = useMemo(() => {
+    if (stats.totalExpense === 0) {
+      return {
+        title: '全新未開拓金庫 🌱',
+        desc: '本月還沒有任何生活開支，小豬金庫飽滿無虞，這是一個嶄新的起點！',
+        emoji: '🌱',
+      };
+    }
+    const topCat = stats.categoryList[0];
+    if (topCat) {
+      if (topCat.name === '餐飲美食') {
+        return {
+          title: '美食探險家 🍜',
+          desc: '生活可以簡單，唯有美食不能辜負！餐飲是您本月最大的幸福開銷。',
+          emoji: '🍜',
+        };
+      }
+      if (topCat.name === '休閒娛樂') {
+        return {
+          title: '生活樂活家 🎮',
+          desc: '快樂回憶無價！懂得生活、適時放鬆犒賞自己。',
+          emoji: '🎉',
+        };
+      }
+      if (topCat.name === '日常購物') {
+        return {
+          title: '質感生活選物師 🛍️',
+          desc: '買的不是東西，是專屬於你的精緻生活儀式感！',
+          emoji: '🛍️',
+        };
+      }
+      if (topCat.name === '交通出行') {
+        return {
+          title: '城市通勤冒險者 🚗',
+          desc: '不是在路上，就是在出發的路上！為日常打拼行動力滿分。',
+          emoji: '🚇',
+        };
+      }
+      if (topCat.name === '進修學習') {
+        return {
+          title: '自我投資求知者 📚',
+          desc: '投資大腦是永遠穩賺不賠的決定，小豬為您的努力喝采！',
+          emoji: '📚',
+        };
+      }
+    }
+    if (stats.savingsRate >= 40) {
+      return {
+        title: '超級金庫守護神 👑',
+        desc: '儲蓄率高達 40% 以上！超凡自律，邁向財務自由的最佳模範！',
+        emoji: '👑',
+      };
+    }
+    return {
+      title: '踏實生活家 🏡',
+      desc: '財務狀況穩健，每筆支出都認真踏實，繼續保持好習慣！',
+      emoji: '🌟',
+    };
+  }, [stats]);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
@@ -455,6 +524,24 @@ export const MonthlyReport: React.FC<MonthlyReportProps> = ({
         </div>
       </div>
 
+      {/* Monthly Financial Persona Card */}
+      <div className="bg-gradient-to-r from-amber-50/80 via-rose-50/50 to-purple-50/80 rounded-2xl p-4 sm:p-5 border border-amber-200/60 shadow-xs flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-white shadow-xs border border-amber-200 flex items-center justify-center text-2xl shrink-0">
+            {persona.emoji}
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200">
+                本月消費人格診斷
+              </span>
+              <h4 className="text-sm sm:text-base font-black text-gray-900">{persona.title}</h4>
+            </div>
+            <p className="text-xs text-gray-600 mt-1 leading-relaxed">{persona.desc}</p>
+          </div>
+        </div>
+      </div>
+
       {/* Main Charts Grid: Donut Breakdown + Daily Trend */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Donut Chart: 類別消費佔比 */}
@@ -522,12 +609,9 @@ export const MonthlyReport: React.FC<MonthlyReportProps> = ({
                         : 'border-transparent hover:bg-gray-50'
                     }`}
                   >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div
-                        className="w-3 h-3 rounded-full shrink-0"
-                        style={{ backgroundColor: cat.color }}
-                      />
-                      <span className="text-xs font-semibold text-gray-800 truncate">{cat.name}</span>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-sm shrink-0">{cat.emoji}</span>
+                      <span className="text-xs font-bold text-gray-800 truncate">{cat.name}</span>
                       <span className="text-xs text-gray-400">({cat.count}筆)</span>
                     </div>
                     <div className="text-right shrink-0">
