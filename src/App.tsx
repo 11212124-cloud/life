@@ -192,6 +192,12 @@ export default function App() {
     }
   };
 
+  // Clear all records
+  const handleClearAllRecords = () => {
+    updateRecords([]);
+    showToast('已清空所有生活開支紀錄');
+  };
+
   return (
     <div className="min-h-screen bg-slate-50/70 text-gray-900 flex flex-col font-sans antialiased selection:bg-emerald-500 selection:text-white">
       {/* Top Navbar */}
@@ -223,6 +229,7 @@ export default function App() {
             }}
             onDeleteRecord={handleDeleteRecord}
             onBatchDelete={handleBatchDelete}
+            onClearAll={handleClearAllRecords}
             isSheetLinked={!!sheetConfig}
           />
         )}

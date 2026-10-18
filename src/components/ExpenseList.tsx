@@ -27,6 +27,7 @@ interface ExpenseListProps {
   onEditClick: (record: ExpenseRecord) => void;
   onDeleteRecord: (id: string) => void;
   onBatchDelete: (ids: string[]) => void;
+  onClearAll?: () => void;
   onSyncPendingClick?: () => void;
   isSheetLinked?: boolean;
 }
@@ -37,6 +38,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
   onEditClick,
   onDeleteRecord,
   onBatchDelete,
+  onClearAll,
   onSyncPendingClick,
   isSheetLinked,
 }) => {
@@ -145,6 +147,20 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
       onConfirm: () => {
         setConfirmModal((prev) => ({ ...prev, isOpen: false }));
         onBatchDelete(Array.from(selectedIds));
+        setSelectedIds(new Set());
+      },
+    });
+  };
+
+  const handleClearAll = () => {
+    if (!onClearAll || records.length === 0) return;
+    setConfirmModal({
+      isOpen: true,
+      title: '確定要清空所有紀錄嗎？',
+      message: `這將會徹底清除應用程式內現存的全部 ${records.length} 筆生活開支紀錄。此操作無法復原，確認清空？`,
+      onConfirm: () => {
+        setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+        onClearAll();
         setSelectedIds(new Set());
       },
     });
@@ -301,6 +317,17 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
             >
               <Trash2 className="w-3.5 h-3.5" />
               <span>刪除已選 ({selectedIds.size})</span>
+            </button>
+          )}
+
+          {records.length > 0 && onClearAll && (
+            <button
+              onClick={handleClearAll}
+              className="flex items-center gap-1 px-2.5 py-1 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg font-semibold transition-colors cursor-pointer ml-1"
+              title="清空目前所有記帳紀錄"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>清空所有</span>
             </button>
           )}
         </div>
